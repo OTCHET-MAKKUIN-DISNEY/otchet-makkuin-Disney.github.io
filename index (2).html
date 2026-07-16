@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форма Отчет - Маккуин</title>
+    <link rel="icon" type="image/png" href="https://otchet-makkuin-disney.github.io/zaplati/logo-makkuin.png">
+   <link rel="apple-touch-icon" href="https://otchet-makkuin-disney.github.io/logo-makkuin.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            margin: 0; 
+            background-color: #f0ebf8; 
+            background-image: url('https://otchet-makkuin-disney.github.io/zaplati/IMG_2002.png');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            background-size: 50%; 
+            font-family: 'Roboto', sans-serif; 
+            font-size: 12px; 
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(240, 235, 248, 0.7); 
+            z-index: -1;
+        }
+
+        .container { 
+            max-width: 1000px; 
+            margin: 40px auto; 
+            padding: 0 10px; 
+            position: relative; 
+            z-index: 1;
+        }
+        .header { background: #673ab7; height: 10px; border-radius: 8px 8px 0 0; }
+        
+        .form-title { 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 15px 24px; 
+            border-radius: 0 0 8px 8px; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+            margin-bottom: 15px; 
+            text-align:center; 
+            position: relative; 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(5px);
+        }
+        h1 { margin: 0; font-size: 20px; color: #333; flex-grow: 1; }
+        
+        .nav-link-btn {
+            background: #ff9800;
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 11px;
+            transition: 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .nav-link-btn:hover { background: #f57c00; transform: translateY(-1px); }
+
+        .title-logo-right {
+            height: 55px; 
+            width: auto;
+            object-fit: contain;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .form-title { padding: 15px; flex-direction: column; gap: 10px; }
+            h1 { order: 1; font-size: 18px; }
+            .nav-link-btn { order: 3; width: 100%; text-align: center; }
+            .title-logo-right { order: 2; height: 45px; margin: 0; }
+        }
+
+        .question-card { 
+            background: rgba(255, 255, 255, 0.98); 
+            padding: 15px 20px; 
+            border-radius: 8px; 
+            margin-bottom: 15px; 
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1); 
+            border-left: 4px solid #673ab7; 
+            border-right: 4px solid #673ab7; 
+        }
+        label { display:block; margin-bottom:4px; font-weight:500; color: #555; }
+        textarea, select, input[type="text"], input[type="tel"], input[type="password"] { width: 100%; border: none; border-bottom: 2px solid #dadce0; padding: 6px; font-size: 14px; background: transparent; box-sizing: border-box; }
+        textarea:focus, select:focus, input:focus { outline: none; border-bottom: 2px solid #673ab7; }
+        
+        .currency-input { position: relative; display: flex; align-items: center; }
+        .currency-input .currency-left { position: absolute; left: 6px; font-weight: 500; color: #000; pointer-events: none; }
+        .currency-input input { width: 100%; padding-left: 18px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; background: #fff; height: 35px; }
+        
+        .submit-box { background: rgba(255, 255, 255, 0.98); padding: 20px; border-radius: 8px; text-align: right; box-shadow: 0 1px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        button { background: #673ab7; color: #fff; border: none; padding: 10px 22px; border-radius: 4px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        button:hover { background: #5e35b1; }
+        button:disabled { background: #aaa; cursor: not-allowed; }
+
+        #statusMsg { font-size: 13px; font-weight: bold; margin-bottom: 10px; text-align: center; display: none; }
+        .success { color: #2e7d32; }
+        .error { color: #d32f2f; }
+
+        .history-scroll-container { width: 100%; max-height: 350px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; background: rgba(255, 255, 255, 0.95); margin-bottom: 20px; scroll-behavior: smooth; }
+        #historyTable, #currentTable { width: 100%; border-collapse: collapse; font-size: 11px; }
+        #historyTable th, #currentTable th { background: #546e7a; color: #fff; padding: 10px; text-transform: uppercase; }
+        #historyTable td, #currentTable td { padding: 8px 10px; border-bottom: 1px solid #eee; text-align: center; }
+
+        .table-wrapper { overflow-x: auto; background: rgba(255, 255, 255, 0.95); border-radius: 8px; border: 1px solid #ddd; padding: 2px; }
+        #monthlyTable { width: 100%; min-width: 980px; border-collapse: separate; border-spacing: 1px; font-size: 9px; }
+        #monthlyTable th { padding: 4px 2px; background: #546e7a; color: #fff; }
+        #monthlyTable td { padding: 4px 1px; text-align: center; border-radius: 3px; min-width: 30px; font-size: 9px;}
+        
+        .date-col { background: rgba(242, 242, 242, 0.9); font-weight: bold; }
+        .expense-col { background: rgba(255,100,100,0.1); color: #800000; }
+        .income-col { background: rgba(100,150,255,0.1); color: #003366; }
+        .text-col { background: #fff; text-align: center !important; border: 1px solid #bbb !important; color: #333; font-size: 8px; line-height: 1; }
+        .balance-col { background: rgba(144,238,144,0.25); font-weight: bold; color: #155724; }
+        .cash-col { background: rgba(255, 249, 196, 0.9); font-weight: bold; color: #856404; }
+        .total-balance-col { background: rgba(255, 0, 0, 0.1); font-weight: bold; color: #b71c1c; border: 1px solid rgba(183, 28, 28, 0.3) !important; }
+
+        .total-row { background: #37474f !important; color: #fff !important; font-weight: bold; }
+        .has-val::after { content: '€'; margin-left:1px; font-size: 9px; opacity: 1; }
+
+        .summary-boxes { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
+        .info-box { background: rgba(255, 255, 255, 0.98); border: 2px solid #673ab7; border-radius: 8px; padding: 12px; min-width: 160px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .info-box.vat { border-color: #ff5722; }
+        .info-box.turnover { border-color: #1976d2; }
+        .turnover-list { max-height: 110px; overflow-y: auto; text-align: left; margin-top: 4px; }
+        .turnover-list div { display: flex; justify-content: space-between; gap: 10px; padding: 2px 0; border-bottom: 1px dashed #ddd; font-size: 10px; color: #444; }
+        .turnover-total { margin-top: 6px; padding-top: 6px; border-top: 2px solid #1976d2; font-size: 13px; font-weight: bold; color: #0d47a1; display: flex; justify-content: space-between; }
+        .box-label { font-size: 10px; color: #555; font-weight: bold; text-transform: uppercase; }
+        .box-value { font-size: 18px; font-weight: bold; }
+        .box-subtext { font-size: 9px; color: #777; margin-top: 4px; text-align: left; }
+    </style>
+    <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
+    <script>
+        Parse.initialize("nRZ2VJnuAxFbP1DPxK524AAL4rUh6avCTbTnQUsL", "MXB3Tw1iF1Cw1HrqKZFFUhf7DHETzaOezipXcPtw");
+        Parse.serverURL = 'https://parseapi.back4app.com/';
+    </script>
+</head>
+<body>
+<div class="container">
+    <div class="header"></div>
+    <div class="form-title">
+        <a href="https://otchet-makkuin-disney.github.io/zaplati/" class="nav-link-btn">КЪМ ЗАПЛАТИ</a>
+        <h1>ДНЕВЕН ОТЧЕТ</h1>
+        <img src="https://otchet-makkuin-disney.github.io/zaplati/IMG_2002.png" alt="Logo" class="title-logo-right" onerror="this.style.display='none'">
+    </div>
+
+<div class="question-card">
+        <label>Избери опция</label>
+        <select id="optionSelect">
+    <option value="" disabled selected>Избери...</option>
+    <optgroup label="ПРИХОДИ">
+     <!--   <option>ПРИХОД БАР МАККУИН</option> -->
+        <option>ПРИХОД МАККУИН</option>
+     <!--   <option>ПРИХОД БАР СЪНСЕТ</option> -->
+        <option>ПРИХОД АНИМАТОР</option>
+        <option>ПРИХОД КАПАРО</option>
+        <option>ДУГИ ПРИХОДИ</option>
+        <option>ПРИХОД ПО БАНКА</option>
+        <option style="color: #d32f2f; font-weight: bold;">ЗАХРАНВАНЕ НА БАНКОВА СМЕТКА</option>
+    </optgroup>
+    <optgroup label="РАЗХОДИ">
+        <option>РАЗХОД С ФАКТУРИ</option>
+        <option>РАЗХОД БЕЗ ФАКТУРИ</option>
+        <option>ЗАПЛАТА/АВАНС</option>
+        <option style="color: #d32f2f; font-weight: bold;">РАЗХОД С ФАКТУРИ ПО БАНКА</option>
+    </optgroup>
+    <optgroup label="КАСОВИ ОПЕРАЦИИ">
+        <option style="color: #2e7d32; font-weight: bold;">ВНЕСЕНИ В КАСА</option>
+        <option style="color: #d32f2f; font-weight: bold;">ИЗНЕСЕНИ ОТ КАСА</option>
+    </optgroup>
+        </select>
+</div>
+
+    <div class="question-card">
+        <label>Въведете сума</label>
+        <div class="currency-input">
+            <span class="currency-left">€</span>
+            <input type="tel" id="amount_field" placeholder="0.00" oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
+        </div>
+    </div>
+
+    <div class="question-card">
+        <label>Пояснения (Бележки)</label>
+        <textarea rows="2" id="notes" placeholder="Добави пояснение тук..."></textarea>
+    </div>
+
+    <div class="submit-box">
+        <div id="statusMsg"></div>
+        <button id="submitBtn" disabled>ИЗПРАТИ ЗАПИС</button>
+    </div>
+
+    <div style="width:100%; border:1px solid #ddd; border-radius:8px; background:rgba(255, 255, 255, 0.8); margin-bottom:20px; overflow:hidden;">
+        <table id="currentTable">
+            <thead>
+                <tr><th>Дата</th><th>Опция</th><th>Сума (€)</th><th>Бележки</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="cashBox" style="background:rgba(245, 245, 255, 0.85); border:2px solid #673ab7; border-radius:8px; padding:15px; width:180px; text-align:center; margin: 10px auto; box-shadow: 0 4px 10px rgba(103, 58, 183, 0.2);">
+        <div style="font-size:11px; color:#555; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">ТЕКУЩА КАСА (В БРОЙ)</div>
+        <div id="currentCash" style="font-size:22px; font-weight:bold; color:#2e7d32;">0.00 €</div>
+    </div>
+
+    <div id="passwordPrompt" style="text-align: center; margin-top: 30px; padding: 20px; background: rgba(255, 255, 255, 0.85); border-radius: 8px; box-shadow: 0 1px 5px rgba(0,0,0,0.1);">
+        <label>Парола за Месечна база:</label>
+        <input type="password" id="monthlyPassword" style="text-align:center; width:150px; margin: 10px 0;">
+        <br>
+        <button id="checkPassword">ПОКАЖИ МЕСЕЧЕН ОТЧЕТ</button>
+    </div>
+
+    <div id="hiddenReportSection" style="display:none; width:100%; margin-top: 20px;">
+        <div id="monthNav" style="display:flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 20px;">
+            <button onclick="changeMonth(-1)">◀ Предходен</button>
+            <div id="displayMonthYear" style="font-weight:bold; font-size: 18px; color: #673ab7; min-width: 150px; text-align: center;"></div>
+            <button onclick="changeMonth(1)">Следващ ▶</button>
+        </div>
+
+        <div class="history-scroll-container">
+            <table id="historyTable">
+                <thead>
+                    <tr><th>Дата</th><th>Опция</th><th>Сума (€)</th><th>Бележки</th></tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+            </table>
+        </div>
+
+        <div class="table-wrapper">
+            <table id="monthlyTable">
+                <thead>
+                    <tr>
+                        <th class="date-col">Дата</th>
+                        <th class="expense-col">РАЗХОД<br>ФАКТУРИ</th>
+                        <th class="expense-col">РАЗХОД<br>БЕЗ ФАКТ.</th>
+                        <th class="expense-col">АВАНС И<br>ЗАПЛАТИ</th>
+                        <th class="income-col">ПРИХОД<br>МАККУИН</th>
+                        <th class="income-col">ПРИХОД<br>АНИМАТОР</th>
+                        <th class="income-col">ПРИХОД<br>КАПАРО</th>
+                        <th style="min-width: 65px;">№ НА<br>КАПАРО</th>
+                        <th class="income-col">ДРУГИ<br>ПРИХОДИ</th>
+                        <th class="income-col">ПРИХОД ПО<br>БАНКА</th>
+                        <th class="balance-col">ТЕКУЩА<br>КАСА</th>
+                        <th class="cash-col">КАСА<br>НАЛИЧНОСТ</th>
+                        <th class="total-balance-col">ТЕКУЩ<br>БАЛАНС</th>
+                    </tr>
+                </thead>
+                <tbody id="monthlyBody"></tbody>
+                <tfoot id="monthlyFoot"></tfoot>
+            </table>
+        </div>
+
+        <div class="summary-boxes">
+            <div class="info-box vat">
+                <div class="box-label">ДДС ЗА МЕСЕЦА</div>
+                <div id="monthlyVat" class="box-value" style="color: #d84315;">0.00 €</div>
+                <div class="box-subtext" id="vatFormulaText"></div>
+            </div>
+            <div class="info-box turnover">
+                <div class="box-label">ОБОРОТ МАККУИН ПО МЕСЕЦИ</div>
+                <div class="turnover-list" id="mcMonthlyList"></div>
+                <div class="turnover-total"><span>ОБЩО:</span><span id="mcMonthlyTotal">0.00 €</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const todayObj = new Date();
+const todayISO = todayObj.toLocaleDateString('sv-SE');
+let viewDate = new Date(todayObj.getFullYear(), todayObj.getMonth(), 1);
+const monthNames = ["ЯНУАРИ", "ФЕВРУАРИ", "МАРТ", "АПРИЛ", "МАЙ", "ЮНИ", "ЮЛИ", "АВГУСТ", "СЕПТЕМВРИ", "ОКТОМВРИ", "НОЕМВРИ", "ДЕКЕМВРИ"];
+
+const MRZ_EURO = 550; 
+const FIXED_SALARY_BASE = (4 * MRZ_EURO) + (2 * 1020); 
+
+const mapping = {
+    "РАЗХОД С ФАКТУРИ": 1, 
+    "РАЗХОД С ФАКТУРИ ПО БАНКА": 11,
+    "РАЗХОД БЕЗ ФАКТУРИ": 2, 
+    "ЗАПЛАТА/АВАНС": 3,
+    "ПРИХОД БАР МАККУИН": 4, 
+    "ПРИХОД МАККУИН": 5, 
+    "ПРИХОД БАР СЪНСЕТ": 6,
+    "ПРИХОД АНИМАТОР": 7, 
+    "ПРИХОД КАПАРО": 8, 
+    "ДУГИ ПРИХОДИ": 10, 
+    "ПРИХОД ПО БАНКА": 11, 
+    "ЗАХРАНВАНЕ НА БАНКОВА СМЕТКА": 11,
+    "ПЛАЩАНЕ С КАРТА": 11 
+};
+
+function isBankIncome(opt) {
+    return opt === "ПРИХОД ПО БАНКА" || opt === "ПЛАЩАНЕ С КАРТА" || opt === "РАЗХОД С ФАКТУРИ ПО БАНКА";
+}
+
+function checkForm() {
+    const val = parseFloat(document.getElementById('amount_field').value);
+    document.getElementById('submitBtn').disabled = !(document.getElementById('optionSelect').value && !isNaN(val) && val > 0);
+}
+document.getElementById('amount_field').addEventListener('input', checkForm);
+document.getElementById('optionSelect').addEventListener('change', checkForm);
+
+function changeMonth(dir) { viewDate.setMonth(viewDate.getMonth() + dir); loadData(); }
+
+async function loadData() {
+    const query = new Parse.Query("ReportEntry");
+    query.limit(5000).ascending("date");
+    try {
+        const results = await query.find();
+        render(results);
+    } catch(e) { console.error("Load Error", e); }
+}
+
+function render(results) {
+    const m = viewDate.getMonth(), y = viewDate.getFullYear();
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    document.getElementById('displayMonthYear').innerText = monthNames[m] + " " + y;
+
+    let globalCashDisplay = 0; 
+    let monthlyData = Array.from({length: daysInMonth}, () => new Array(15).fill(0));
+    let kaparoNotes = new Array(daysInMonth).fill("");
+    
+    let incomeForVat = 0;
+    let invoicesForVat = 0;
+    let hasRecordsForThisMonth = false;
+
+    const currentTBody = document.querySelector('#currentTable tbody');
+    const historyTBody = document.getElementById('historyBody');
+    currentTBody.innerHTML = '';
+    historyTBody.innerHTML = '';
+
+    results.sort((a,b) => a.get("date").localeCompare(b.get("date")));
+
+    results.forEach(e => {
+        const dStr = e.get("date"), entryDate = new Date(dStr);
+        const opt = e.get("option"), val = e.get("sum") || 0, col = mapping[opt];
+
+        // КАСА ЛОГИКА (В БРОЙ) - Кумулативно за всички времена
+        if (opt !== "ЗАХРАНВАНЕ НА БАНКОВА СМЕТКА" && opt !== "РАЗХОД С ФАКТУРИ ПО БАНКА" && !isBankIncome(opt)) {
+            const isCashOut = (opt === "ИЗНЕСЕНИ ОТ КАСА" || [1,2,3].includes(col));
+            if (isCashOut) globalCashDisplay -= val; else globalCashDisplay += val;
+        }
+
+        if(dStr === todayISO) {
+            currentTBody.innerHTML += `<tr><td>${entryDate.getDate()}.${entryDate.getMonth()+1}</td><td>${opt}</td><td>${val.toFixed(2)}</td><td>${e.get("notes")||''}</td></tr>`;
+        }
+
+        // Логика само за избрания месец
+        if(entryDate.getMonth() === m && entryDate.getFullYear() === y) {
+            hasRecordsForThisMonth = true;
+            historyTBody.innerHTML += `<tr><td>${entryDate.getDate()}.${entryDate.getMonth()+1}</td><td>${opt}</td><td>${val.toFixed(2)}</td><td>${e.get("notes")||''}</td></tr>`;
+            const dIdx = entryDate.getDate() - 1;
+            
+            if(col) {
+                if(opt === "РАЗХОД С ФАКТУРИ ПО БАНКА") {
+                    monthlyData[dIdx][col] -= val;
+                } else {
+                    monthlyData[dIdx][col] += val;
+                }
+            }
+            
+            if(opt === "ПРИХОД КАПАРО") kaparoNotes[dIdx] += (kaparoNotes[dIdx] ? ", " : "") + (e.get("notes") || "");
+
+            // ДДС ЛОГИКА - Включваме всички приходни колони за по-прецизен отчет
+            if ([4, 5, 6, 7, 8, 10, 11].includes(col)) {
+                // Изключваме трансфери и захранвания от данъчната база
+                if (opt !== "ЗАХРАНВАНЕ НА БАНКОВА СМЕТКА" && opt !== "ВНЕСЕНИ В КАСА" && opt !== "ИЗНЕСЕНИ ОТ КАСА") {
+                    incomeForVat += val;
+                }
+            }
+            if (col === 1 || opt === "РАЗХОД С ФАКТУРИ ПО БАНКА") invoicesForVat += val;
+        }
+    });
+
+    document.getElementById('currentCash').textContent = globalCashDisplay.toFixed(2) + ' €';
+
+    // КУМУЛАТИВНИ САЛДА (Прехвърляне между месеци)
+    let runningCol11 = -17300; // ПРИХОД ПО БАНКА
+    let runningCol12 = 0; // ТЕКУЩА КАСА
+    let runningCol13 = -10641.89; // КАСА НАЛИЧНОСТ
+    let runningCol14Total = -27972.03; // ТЕКУЩ БАЛАНС
+    
+    let dailyCol11 = {}; 
+    let dailyCol12 = {}; 
+    let dailyCol13 = {};
+    let dailyCol14Cumulative = {};
+
+    results.forEach(e => {
+        const dStr = e.get("date"), opt = e.get("option"), val = e.get("sum") || 0, col = mapping[opt];
+        
+        if (col === 11) {
+            if (opt === "РАЗХОД С ФАКТУРИ ПО БАНКА") runningCol11 -= val;
+            else runningCol11 += val;
+        }
+
+        if (opt !== "ЗАХРАНВАНЕ НА БАНКОВА СМЕТКА" && opt !== "РАЗХОД С ФАКТУРИ ПО БАНКА" && !isBankIncome(opt)) {
+            const isCashOut = (opt === "ИЗНЕСЕНИ ОТ КАСА" || [1,2,3].includes(col));
+            if (isCashOut) runningCol12 -= val; else runningCol12 += val;
+        }
+
+        if (opt === "ЗАХРАНВАНЕ НА БАНКОВА СМЕТКА" || opt === "ВНЕСЕНИ В КАСА") runningCol13 -= val;
+        else if (opt === "ИЗНЕСЕНИ ОТ КАСА") runningCol13 += val;
+
+        if ([1,2,3,4,5,6,7,8,10,11].includes(col)) {
+            if (opt !== "ЗАХРАНВАНЕ НА БАНКОВА СМЕТКА") {
+                const isExpense = ([1,2,3].includes(col) || opt === "РАЗХОД С ФАКТУРИ ПО БАНКА");
+                if (isExpense) runningCol14Total -= val; else runningCol14Total += val;
+            }
+        }
+
+        dailyCol11[dStr] = runningCol11;
+        dailyCol12[dStr] = runningCol12;
+        dailyCol13[dStr] = runningCol13;
+        dailyCol14Cumulative[dStr] = runningCol14Total;
+    });
+
+    const mBody = document.getElementById('monthlyBody');
+    mBody.innerHTML = '';
+    let colTotals = new Array(15).fill(0);
+    
+    let l11 = 0, l12 = 0, l13 = 0;
+    const startOfViewStr = `${y}-${String(m+1).padStart(2,'0')}-01`;
+    
+    results.forEach(e => { 
+        if(e.get("date") < startOfViewStr) {
+            l11 = dailyCol11[e.get("date")] || 0;
+            l12 = dailyCol12[e.get("date")] || 0;
+            l13 = dailyCol13[e.get("date")] || 0;
+        }
+    });
+
+    for(let i=1; i<=daysInMonth; i++) {
+        const currentDayStr = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+        if (dailyCol11[currentDayStr] !== undefined) l11 = dailyCol11[currentDayStr];
+        if (dailyCol12[currentDayStr] !== undefined) l12 = dailyCol12[currentDayStr];
+        if (dailyCol13[currentDayStr] !== undefined) l13 = dailyCol13[currentDayStr];
+
+        let dailyBalanceValue = 0;
+        for(let cIdx of [4,5,6,7,8,10,11]) dailyBalanceValue += monthlyData[i-1][cIdx];
+        for(let cIdx of [1,2,3]) dailyBalanceValue -= monthlyData[i-1][cIdx];
+
+        const row = document.createElement('tr');
+        for(let j=0; j<15; j++) {
+            const td = document.createElement('td');
+            if(j===0) { td.textContent = `${i}.${m+1}`; td.className = 'date-col'; }
+            else if(j===9) { td.textContent = kaparoNotes[i-1]; td.className = 'text-col'; }
+            else if(j===11) {
+                td.textContent = l11.toFixed(2);
+                td.className = 'income-col has-val';
+            }
+            else if(j===12) { td.textContent = l12.toFixed(2); td.className='balance-col has-val'; }
+            else if(j===13) { td.textContent = l13.toFixed(2); td.className='cash-col has-val'; }
+            else if(j===14) { 
+                if(dailyBalanceValue !== 0) {
+                    td.textContent = dailyBalanceValue.toFixed(2); 
+                    td.className='total-balance-col has-val'; 
+                }
+            }
+            else {
+                let v = monthlyData[i-1][j];
+                if(v !== 0) { td.textContent = v.toFixed(2); td.classList.add('has-val'); colTotals[j] += v; }
+            }
+            
+            if(j !== 9 && j < 11) {
+                if([1,2,3].includes(j)) td.classList.add('expense-col');
+                if([4,5,6,7,8,10].includes(j)) td.classList.add('income-col');
+            }
+            if(j !== 4 && j !== 6) row.appendChild(td);
+        }
+        mBody.appendChild(row);
+    }
+
+    const lastDayOfMonthStr = `${y}-${String(m+1).padStart(2,'0')}-${String(daysInMonth).padStart(2,'0')}`;
+    let bestBalance = 0;
+    results.forEach(e => {
+        if(e.get("date") <= lastDayOfMonthStr) bestBalance = dailyCol14Cumulative[e.get("date")];
+        else if (bestBalance === 0 && e.get("date") < startOfViewStr) bestBalance = dailyCol14Cumulative[e.get("date")];
+    });
+
+    const fRow = document.createElement('tr'); fRow.className = 'total-row';
+    for(let j=0; j<15; j++) {
+        const td = document.createElement('td');
+        if(j===0) td.textContent = "ОБЩО:";
+        else if(j===11) td.textContent = l11.toFixed(2);
+        else if(j===12) td.textContent = l12.toFixed(2);
+        else if(j===13) td.textContent = l13.toFixed(2);
+        else if(j===14) td.textContent = bestBalance.toFixed(2);
+        else if(j===9) { td.textContent = ""; }
+        else { td.textContent = colTotals[j].toFixed(2); if(colTotals[j]!==0) td.classList.add('has-val'); }
+        if(j !== 4 && j !== 6) fRow.appendChild(td);
+    }
+    document.getElementById('monthlyFoot').innerHTML = '';
+    document.getElementById('monthlyFoot').appendChild(fRow);
+
+    // ПРЕЦИЗНО ИЗЧИСЛЯВАНЕ НА ДДС
+    let vatOnIncome = 0;
+    let vatOnExpense = 0;
+    let finalVat = 0;
+
+    if (hasRecordsForThisMonth) {
+        vatOnIncome = incomeForVat / 6;
+        vatOnExpense = (invoicesForVat + FIXED_SALARY_BASE) / 6;
+        finalVat = vatOnIncome - vatOnExpense;
+    }
+    
+    // Ако крайният резултат е отрицателен, показваме 0.00, но описваме кредита
+    let displayVat = Math.max(0, finalVat);
+    let creditAmount = Math.abs(Math.min(0, finalVat));
+    
+    document.getElementById('monthlyVat').textContent = displayVat.toFixed(2) + ' €';
+    
+    let subtext = "";
+    if (!hasRecordsForThisMonth) {
+        subtext = "Няма записи за избрания месец.";
+    } else {
+        subtext = `<strong>Приход (ДДС):</strong> ${vatOnIncome.toFixed(2)}€<br>` +
+                  `<strong>Разход (ДДС):</strong> ${vatOnExpense.toFixed(2)}€<br>`;
+        if (finalVat < 0) {
+            subtext += `<span style="color:#2e7d32; font-weight:bold;">Текущ кредит за приспадане: ${creditAmount.toFixed(2)}€</span>`;
+        } else {
+            subtext += `<span style="color:#d32f2f; font-weight:bold;">ДДС за внасяне: ${finalVat.toFixed(2)}€</span>`;
+        }
+    }
+    
+    document.getElementById('vatFormulaText').innerHTML = subtext;
+
+    // ОБОРОТ МАККУИН ПО МЕСЕЦИ (изчислен на база всички записи, независимо от избрания месец в изгледа)
+    let mcMonthlyTotals = {};
+    results.forEach(e => {
+        if (e.get("option") === "ПРИХОД МАККУИН") {
+            const key = e.get("date").substring(0, 7); // YYYY-MM
+            mcMonthlyTotals[key] = (mcMonthlyTotals[key] || 0) + (e.get("sum") || 0);
+        }
+    });
+
+    const mcListEl = document.getElementById('mcMonthlyList');
+    mcListEl.innerHTML = '';
+    let mcGrandTotal = 0;
+    const TURNOVER_START_MONTH = '2026-07';
+    Object.keys(mcMonthlyTotals).sort().filter(key => key >= TURNOVER_START_MONTH).forEach(key => {
+        const [yy, mm] = key.split('-');
+        const label = monthNames[parseInt(mm, 10) - 1] + ' ' + yy;
+        const val = mcMonthlyTotals[key];
+        mcGrandTotal += val;
+        mcListEl.innerHTML += `<div><span>${label}</span><span>${val.toFixed(2)} €</span></div>`;
+    });
+    document.getElementById('mcMonthlyTotal').textContent = mcGrandTotal.toFixed(2) + ' €';
+}
+
+document.getElementById('submitBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('submitBtn'); btn.disabled = true;
+    const status = document.getElementById('statusMsg');
+    status.style.display = 'block'; status.textContent = 'Записване...';
+    try {
+        const Entry = Parse.Object.extend("ReportEntry"), entry = new Entry();
+        await entry.save({
+            date: todayISO,
+            option: document.getElementById('optionSelect').value,
+            sum: parseFloat(document.getElementById('amount_field').value),
+            notes: document.getElementById('notes').value.trim()
+        });
+        status.textContent = 'Успешно!'; status.className = 'success';
+        document.getElementById('amount_field').value = ''; document.getElementById('notes').value = '';
+        setTimeout(() => { status.style.display = 'none'; }, 2000);
+        await loadData();
+        setTimeout(scrollToBottom, 100);
+    } catch(e) { status.textContent = 'Грешка!'; status.className = 'error'; }
+    finally { btn.disabled = false; checkForm(); }
+});
+function scrollToBottom() {
+    const container = document.querySelector('.history-scroll-container');
+    if (container) container.scrollTop = container.scrollHeight;
+}
+function validatePassword() {
+    if(document.getElementById('monthlyPassword').value === 'MakKuin6775'){
+        document.getElementById('hiddenReportSection').style.display = 'block';
+        document.getElementById('passwordPrompt').style.display = 'none';
+        loadData().then(() => {
+            setTimeout(scrollToBottom, 100); 
+        });
+    } else { alert("Грешна парола"); }
+}
+document.getElementById('checkPassword').addEventListener('click', validatePassword);
+document.getElementById('monthlyPassword').addEventListener('keypress', (e) => { if (e.key === 'Enter') validatePassword(); });
+
+loadData();
+</script>
+</body>
+</html>
